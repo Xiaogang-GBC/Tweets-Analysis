@@ -1,0 +1,35 @@
+{
+  "basic_stats": {
+    "Total Tweets": 4966,
+    "Unique Users": 2899,
+    "Date Range": {
+      "Start": "2019-09-11 00:14:50+00:00",
+      "End": "2019-10-02 02:14:55+00:00"
+    }
+  },
+  "actor_distribution": {
+    "Citizen": 3338,
+    "High Volume Account": 1003,
+    "Verified Other": 232,
+    "Influencer": 173,
+    "Unknown": 151,
+    "Journalist": 39,
+    "Political Figure": 30
+  },
+  "migration_stats": {
+    "total_migration_tweets": 4702,
+    "percentage_migration": 94.68,
+    "top_hashtags": {
+      "cdnpoli": 3534,
+      "elxn43": 2009,
+      "firstdebate": 374,
+      "canada": 237,
+      "cdnimm": 218,
+      "immigration": 190,
+      "election2019": 176,
+      "ppc2019": 159,
+      "trudeaumustgo": 153,
+      "bcpoli": 118
+    }
+  }
+}
