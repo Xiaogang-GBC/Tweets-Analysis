@@ -1,4 +1,3 @@
-
 import json
 import pandas as pd
 import numpy as np
@@ -14,24 +13,30 @@ import os
 
 # Download required NLTK data
 try:
-    nltk.download('punkt')
+    nltk.download('punkt') 
     nltk.download('stopwords')
     nltk.download('averaged_perceptron_tagger')
 except:
     print("NLTK data already downloaded or error in downloading")
 
+# using a class to encapsulate all the content analysis methods
 class ContentAnalyzer:
     def __init__(self, file_path):
         """Initialize analyzer with data and create output directory"""
+        # the output directory is created to store the results of the analysis
         self.output_dir = 'export/content'
         os.makedirs(self.output_dir, exist_ok=True)
+        # load the data from the file
         self.load_data(file_path)
+        # define the stop words to be used in the analysis
         self.stop_words = set(stopwords.words('english'))
+        # add custom stop words to the set
         self.custom_stop_words = {
             'amp', 'rt', 'twitter', 'tweet', 'tweets', 'https', 'co', 
             'would', 'could', 'should', 'said', 'says', 'one', 'will',
             'time', 'today', 'day', 'now', 'get', 'got', 'going'
         }
+        # update the stop words set with the custom stop words
         self.stop_words.update(self.custom_stop_words)
 
     def load_data(self, file_path):
@@ -39,6 +44,7 @@ class ContentAnalyzer:
         print("Loading tweet data...")
         with open(file_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
+        # create a DataFrame from the loaded data
         self.df = pd.DataFrame(data)
         print(f"Loaded {len(self.df)} tweets")
 
@@ -104,6 +110,7 @@ class ContentAnalyzer:
         for text in self.df['full_text']:
             processed_text = self.preprocess_text(text)
             words = word_tokenize(processed_text)
+            # Filter stop words and short words
             all_words.extend([word for word in words 
                             if word.lower() not in self.stop_words
                             and len(word) > 2])  # Filter out very short words
@@ -115,6 +122,7 @@ class ContentAnalyzer:
         top_words = pd.DataFrame(word_freq.most_common(20), 
                                columns=['Word', 'Frequency'])
         
+        # Plot bar chart
         plt.figure(figsize=(15, 8))
         bars = plt.bar(
             range(len(top_words)),
@@ -216,5 +224,6 @@ class ContentAnalyzer:
         print("Content analysis complete. Check the 'export/content' directory for results.")
 
 if __name__ == "__main__":
+    # create an instance of the ContentAnalyzer class and run all the analyses
     analyzer = ContentAnalyzer('Election Tweets.json')
     analyzer.run_all_analyses()
