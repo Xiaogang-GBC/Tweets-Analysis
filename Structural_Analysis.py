@@ -1,4 +1,3 @@
-
 import json
 import pandas as pd
 import numpy as np
@@ -10,6 +9,7 @@ from collections import Counter
 import itertools
 import os
 
+# using a class to encapsulate all the structural analysis methods
 class StructuralAnalyzer:
     def __init__(self, file_path):
         """Initialize analyzer with data and create output directory"""
@@ -81,6 +81,7 @@ class StructuralAnalyzer:
         
         # Extract hashtags
         hashtag_lists = []
+        # Check if 'entities' field is a dictionary and contains 'hashtags' field
         for tweet in self.df['entities']:
             if isinstance(tweet, dict) and 'hashtags' in tweet:
                 hashtags = [tag['text'].lower() for tag in tweet['hashtags']]
@@ -169,6 +170,7 @@ class StructuralAnalyzer:
         """Analyze political alignment distribution"""
         print("Analyzing political alignment...")
         
+        # Define political keywords
         political_keywords = {
             'left': ['liberal', 'trudeau', 'ndp', 'singh', 'progressive'],
             'right': ['conservative', 'tory', 'scheer', 'bernier', 'ppc'],
@@ -176,9 +178,11 @@ class StructuralAnalyzer:
         }
 
         def get_alignment(text):
+            """Determine political alignment based on keywords"""
             if not isinstance(text, str):
                 return 'unknown'
             text = text.lower()
+            # Count keyword occurrences
             counts = {
                 alignment: sum(keyword in text for keyword in keywords)
                 for alignment, keywords in political_keywords.items()
@@ -254,5 +258,6 @@ class StructuralAnalyzer:
         print("Structural analysis complete. Check the 'export/structural' directory for results.")
 
 if __name__ == "__main__":
+    # Run the structural analysis
     analyzer = StructuralAnalyzer('Election Tweets.json')
     analyzer.run_all_analyses()

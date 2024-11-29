@@ -1,4 +1,4 @@
-
+# this code runs about 60 minutes on a M1 Macbook Air
 import json
 import pandas as pd
 import numpy as np
@@ -11,16 +11,20 @@ import seaborn as sns
 from tqdm import tqdm
 import os
 
+# use class to encapsulate all the sentiment analysis methods
 class TweetDataset(Dataset):
+    # initialize the dataset with the texts, labels, tokenizer and max_length
     def __init__(self, texts, labels, tokenizer, max_length=128):
         self.texts = texts
         self.labels = labels
         self.tokenizer = tokenizer
         self.max_length = max_length
 
+    # return the length of the dataset
     def __len__(self):
         return len(self.texts)
 
+    # return the item at the given index
     def __getitem__(self, idx):
         encoding = self.tokenizer.encode_plus(
             str(self.texts[idx]),
@@ -32,12 +36,15 @@ class TweetDataset(Dataset):
             return_tensors='pt'
         )
         return {
+            # return the input_ids, attention_mask and labels
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),
             'labels': torch.tensor(self.labels[idx], dtype=torch.long)
         }
 
+# use class to encapsulate all the sentiment analysis methods
 class SentimentAnalyzer:
+    # initialize the analyzer with the file path
     def __init__(self, file_path):
         """Initialize analyzer with data and create output directory"""
         self.output_dir = 'export/sentiment'
@@ -58,9 +65,11 @@ class SentimentAnalyzer:
         """Create initial sentiment labels using keyword matching"""
         print("Creating initial sentiment labels...")
         
+        # Define positive and negative words
         positive_words = {'support', 'welcome', 'positive', 'good', 'great', 'excellent'}
         negative_words = {'against', 'bad', 'worse', 'terrible', 'problem', 'crisis'}
         
+        # Function to get sentiment based on keyword matching
         def get_sentiment(text):
             text = str(text).lower()
             pos_count = sum(word in text for word in positive_words)
@@ -88,6 +97,7 @@ class SentimentAnalyzer:
         
         # Initialize tokenizer and model
         tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
+        # use the AutoModelForSequenceClassification model
         model = AutoModelForSequenceClassification.from_pretrained(
             'bert-base-uncased',
             num_labels=3
@@ -115,9 +125,11 @@ class SentimentAnalyzer:
             train_loss = 0
             train_progress = tqdm(train_loader, desc="Training")
             
+            # Loop through each batch
             for batch in train_progress:
                 optimizer.zero_grad()
                 
+                # Forward pass
                 outputs = model(
                     input_ids=batch['input_ids'].to(self.device),
                     attention_mask=batch['attention_mask'].to(self.device),
@@ -131,6 +143,7 @@ class SentimentAnalyzer:
                 train_loss += loss.item()
                 train_progress.set_description(f"Training Loss: {loss.item():.4f}")
             
+            # Calculate average training loss
             avg_train_loss = train_loss / len(train_loader)
             train_losses.append(avg_train_loss)
             
@@ -139,8 +152,11 @@ class SentimentAnalyzer:
             val_loss = 0
             predictions = []
             
+            # Loop through each batch
             with torch.no_grad():
+                # Loop through each batch of validation
                 for batch in tqdm(val_loader, desc="Validation"):
+                    # Forward pass
                     outputs = model(
                         input_ids=batch['input_ids'].to(self.device),
                         attention_mask=batch['attention_mask'].to(self.device),
@@ -193,6 +209,7 @@ class SentimentAnalyzer:
         print("Sentiment analysis complete. Check the 'export/sentiment' directory for results.")
         return model, tokenizer
 
+# run the sentiment analysis
 if __name__ == "__main__":
     analyzer = SentimentAnalyzer('Election Tweets.json')
     analyzer.create_labels()
